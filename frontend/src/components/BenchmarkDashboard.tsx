@@ -34,8 +34,18 @@ export default function BenchmarkDashboard({ scenario, onImport, onRouteOverlay,
   const [weightDraft, setWeightDraft] = useState(scenario.weights)
   const [successfulScenario, setSuccessfulScenario] = useState('')
   const [showRoutes, setShowRoutes] = useState(false)
+  const [chartZoomed, setChartZoomed] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
   const downloadUrl = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!chartZoomed) return
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setChartZoomed(false)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [chartZoomed])
 
   useEffect(() => {
     setWeightDraft(scenario.weights)
@@ -215,7 +225,19 @@ export default function BenchmarkDashboard({ scenario, onImport, onRouteOverlay,
           </table>
         </div>
         <div className="convergence-heading">PSO and QPSO convergence</div>
-        <div className="convergence-chart">
+        <div
+          className="convergence-chart zoomable"
+          onClick={() => setChartZoomed(true)}
+          title="Click to zoom in"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              setChartZoomed(true)
+            }
+          }}
+        >
           <Suspense fallback={<div className="chart-loading">Loading convergence plot</div>}>
             <ConvergenceChart pso={results.pso.convergence_curve} qpso={results.qpso.convergence_curve} />
           </Suspense>
@@ -249,6 +271,40 @@ export default function BenchmarkDashboard({ scenario, onImport, onRouteOverlay,
           <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(event) => void importFile(event.target.files?.[0])} />
         </div>
       </section>
+
+      {chartZoomed && results && (
+        <div
+          className="chart-zoom-overlay"
+          onClick={() => setChartZoomed(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Zoomed Convergence Graph"
+        >
+          <div className="chart-zoom-dialog" onClick={(event) => event.stopPropagation()}>
+            <div className="chart-zoom-header">
+              <span className="chart-zoom-title">PSO &amp; QPSO Convergence</span>
+              <button
+                type="button"
+                className="chart-zoom-close"
+                onClick={() => setChartZoomed(false)}
+                title="Close (Esc)"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="chart-zoom-body">
+              <Suspense fallback={<div className="chart-loading">Loading convergence plot…</div>}>
+                <ConvergenceChart
+                  pso={results.pso.convergence_curve}
+                  qpso={results.qpso.convergence_curve}
+                />
+              </Suspense>
+            </div>
+            <div className="chart-zoom-hint">Click outside or press <strong>Esc</strong> to close</div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

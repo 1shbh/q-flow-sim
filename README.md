@@ -1,6 +1,6 @@
-﻿# Q-Flow Sim
+﻿# QIRA
 
-An interactive traffic network simulator and routing benchmark platform. Q-Flow Sim simulates dynamic road congestion and benchmarks classical shortest-path algorithms against swarm intelligence metaheuristics (PSO and Quantum-Behaved PSO) in a real-time control-room environment.
+An interactive traffic network simulator and routing benchmark platform. QIRA simulates dynamic road congestion and benchmarks classical shortest-path algorithms against swarm intelligence metaheuristics (PSO and Quantum-Behaved PSO) in a real-time control-room environment.
 
 ---
 

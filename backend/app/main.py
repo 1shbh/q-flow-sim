@@ -3,13 +3,15 @@
 import asyncio
 import json
 import math
+import os
 import re
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.staticfiles import StaticFiles
 import networkx as nx
 
 from .algorithms.runner import ALGORITHMS, run_algorithm
@@ -17,12 +19,12 @@ from .algorithms.network import edge_from_dict, build_graph, route_time_min
 from .graph_model import congestion_multiplier, edge_cost_min
 from .scenario import empty_scenario
 
-app = FastAPI(title="Q-Flow Sim API", docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="QIRA API", docs_url=None, redoc_url=None, openapi_url=None)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
+    allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -795,3 +797,40 @@ def _ensure_runnable() -> None:
     origin, destination = scenario["egoVehicle"]["origin"], scenario["egoVehicle"]["destination"]
     if origin not in graph or destination not in graph or not nx.has_path(graph, origin, destination):
         raise HTTPException(status_code=400, detail="No open route — clear or change a closure")
+
+
+# Locate frontend build directory if present (production / Docker)
+_FRONTEND_DIST_CANDIDATES = [
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../frontend/dist")),
+    os.path.abspath(os.path.join(os.getcwd(), "frontend/dist")),
+    "/app/frontend/dist",
+]
+FRONTEND_DIST = next((d for d in _FRONTEND_DIST_CANDIDATES if os.path.isdir(d)), None)
+
+if FRONTEND_DIST:
+    assets_dir = os.path.join(FRONTEND_DIST, "assets")
+    if os.path.isdir(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    scenarios_dir = os.path.join(FRONTEND_DIST, "scenarios")
+    if os.path.isdir(scenarios_dir):
+        app.mount("/scenarios", StaticFiles(directory=scenarios_dir), name="scenarios")
+
+    @app.get("/")
+    def serve_root() -> Response:
+        index_path = os.path.join(FRONTEND_DIST, "index.html")
+        if os.path.isfile(index_path):
+            return FileResponse(index_path)
+        raise HTTPException(status_code=404, detail="Frontend build index.html not found")
+
+    @app.get("/{full_path:path}")
+    def serve_frontend_spa(full_path: str) -> Response:
+        if full_path in ("scenario", "run", "health") or full_path.startswith(("scenario/", "run/", "health/", "ws/")):
+            raise HTTPException(status_code=404, detail="Not Found")
+        file_path = os.path.join(FRONTEND_DIST, full_path)
+        if full_path and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        index_path = os.path.join(FRONTEND_DIST, "index.html")
+        if os.path.isfile(index_path):
+            return FileResponse(index_path)
+        raise HTTPException(status_code=404, detail="Frontend build index.html not found")

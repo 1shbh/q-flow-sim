@@ -1,6 +1,7 @@
 import type { CompareAllResults, EdgeData, NodeData, RunResult, Scenario, VehicleCounts, WeatherData } from '../types'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000'
+const rawBase = import.meta.env.VITE_API_BASE_URL
+const API_BASE = (rawBase !== undefined ? rawBase : (import.meta.env.DEV ? 'http://127.0.0.1:8000' : '')).replace(/\/+$/, '')
 
 async function request<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
@@ -66,5 +67,11 @@ export const api = {
       filename: response.headers.get('Content-Disposition')?.match(/filename="?([^";]+)"?/i)?.[1] ?? 'scenario.json',
     }
   },
-  animationSocketUrl: () => `${API_BASE.replace(/^http/, 'ws')}/ws/animation`,
+  animationSocketUrl: () => {
+    if (!API_BASE || API_BASE.startsWith('/')) {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      return `${protocol}//${window.location.host}${API_BASE}/ws/animation`
+    }
+    return `${API_BASE.replace(/^http/, 'ws')}/ws/animation`
+  },
 }

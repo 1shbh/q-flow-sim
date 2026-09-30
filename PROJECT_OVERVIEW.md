@@ -1,8 +1,8 @@
-# Q-Flow Sim — Technical Project Overview
+# QIRA — Technical Project Overview
 
 ## 1. Project Purpose & Scope
 
-**Q-Flow Sim** is an interactive, browser-based traffic control-room simulator and routing optimization benchmark. The platform models physical road geometry, dynamic traffic congestion, environmental disruptions, and signal controls, while pitting classical shortest-path algorithms against swarm intelligence metaheuristics:
+**QIRA** is an interactive, browser-based traffic control-room simulator and routing optimization benchmark. The platform models physical road geometry, dynamic traffic congestion, environmental disruptions, and signal controls, while pitting classical shortest-path algorithms against swarm intelligence metaheuristics:
 - **Classical Shortest-Path Baselines:** Dijkstra and A\*
 - **Metaheuristic Optimizers:** Classical Particle Swarm Optimization (PSO) and Quantum-Behaved Particle Swarm Optimization (QPSO)
 

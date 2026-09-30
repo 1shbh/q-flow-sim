@@ -167,9 +167,30 @@ body { min-width: 760px; min-height: 560px; overflow: hidden; background: var(--
 .benchmark-table td { color: #B5AFAB; font-family: "JetBrains Mono", "IBM Plex Mono", monospace; }
 .benchmark-table .algorithm-row.pso th { color: var(--accent-pso); }
 .benchmark-table .algorithm-row.qpso th { color: var(--accent-qpso); }
-.convergence-heading { color: #C9C3BF; font-size: 10px; }
-.convergence-chart { width: 100%; height: 210px; min-width: 0; }
+.convergence-heading { color: #C9C3BF; font-size: 10px; font-weight: 500; margin-top: 10px; margin-bottom: 4px; }
+.convergence-chart { width: 100%; height: 210px; min-width: 0; position: relative; }
+.convergence-chart.zoomable { cursor: zoom-in; border-radius: 4px; transition: outline-color 0.18s ease, box-shadow 0.18s ease; }
+.convergence-chart.zoomable:hover { outline: 1px solid rgba(249,79,140,.45); box-shadow: 0 0 12px rgba(249,79,140,.12); }
 .chart-loading { padding-top: 78px; color: var(--text-dim); font-size: 10px; text-align: center; }
+
+/* Pop-out Zoom Overlay */
+.chart-zoom-overlay { position: fixed; inset: 0; background: rgba(3, 4, 7, 0.82); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 24px; animation: zoomFadeIn 0.18s ease-out; cursor: zoom-out; }
+.chart-zoom-dialog { background: #0c0e15; border: 1px solid rgba(154, 147, 143, 0.25); border-radius: 8px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.88), 0 0 32px rgba(249, 79, 140, 0.08); width: min(700px, 92vw); max-height: 88vh; display: flex; flex-direction: column; padding: 14px 18px 12px; animation: zoomSpring 0.22s cubic-bezier(0.16, 1, 0.3, 1); cursor: default; }
+.chart-zoom-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(154, 147, 143, 0.12); }
+.chart-zoom-title { font-size: 13px; font-weight: 600; color: #FFF; letter-spacing: 0.02em; }
+.chart-zoom-close { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(154, 147, 143, 0.2); color: #9A938F; font-size: 13px; cursor: pointer; padding: 3px 8px; border-radius: 4px; line-height: 1; transition: all 0.15s ease; }
+.chart-zoom-close:hover { background: rgba(249, 79, 140, 0.25); border-color: rgba(249, 79, 140, 0.6); color: #FFF; }
+.chart-zoom-body { width: 100%; height: 450px; max-height: 70vh; }
+.chart-zoom-hint { text-align: center; font-size: 10px; color: var(--text-dim); margin-top: 8px; }
+
+@keyframes zoomFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes zoomSpring {
+  0% { transform: scale(0.78); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
 .inline-loader { display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; }
 .phase-panel-heading { display: flex; align-items: baseline; justify-content: space-between; }
 .phase-panel-heading h3 { margin: 0; color: var(--text-primary); font-size: 12px; font-weight: 550; }

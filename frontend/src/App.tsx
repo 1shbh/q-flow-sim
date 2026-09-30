@@ -249,7 +249,7 @@ export default function App() {
         <div className="brand">
           <div className="brand-mark"><span /></div>
           <div>
-            <div className="brand-name">Q-FLOW <span>SIM</span></div>
+            <div className="brand-name">QIRA</div>
           </div>
         </div>
       </header>

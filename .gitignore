@@ -3,3 +3,8 @@ frontend/dist/
 backend/.venv/
 __pycache__/
 *.py[cod]
+.pytest_cache/
+backend/.pytest_cache/
+frontend/tsconfig.tsbuildinfo
+.env.local
+frontend/.env.local
